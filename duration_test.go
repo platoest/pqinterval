@@ -1,6 +1,7 @@
 package pqinterval
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -44,4 +45,32 @@ func TestZeroDuration(t *testing.T) {
 	val, err = i.Value()
 	assert.Nil(t, err, "Duration.Value() error")
 	assert.EqualValues(t, "0 microseconds", val, "Duration.Value() result")
+}
+
+func TestDuration_MarshalJSON(t *testing.T) {
+	orig := "20m30s"
+	d, err := time.ParseDuration(orig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pqd := Duration(d)
+	b, err := pqd.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+	if got, want := string(b), fmt.Sprintf(`"%v"`, orig); got != want {
+		t.Errorf("bad marshal: got %v, want %v", got, want)
+	}
+}
+
+func TestDuration_UnmarshalJSON_string(t *testing.T) {
+	input := []byte(`"20m30s"`)
+	var d Duration
+	err := (&d).UnmarshalJSON(input)
+	if err != nil {
+		t.Error(err)
+	}
+	if got, want := d, Duration(1230000000000); got != want {
+		t.Errorf("bad unmarshal: got %v, want %v", got, want)
+	}
 }

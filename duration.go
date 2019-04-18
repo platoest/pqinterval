@@ -2,13 +2,17 @@ package pqinterval
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"math"
 	"time"
 )
 
-// Duration is a time.Duration alias that supports the driver.Valuer and
-// sql.Scanner interfaces.
+// Duration is a time.Duration alias that supports the following additional interfaces:
+// - driver.Valuer
+// - sql.Scanner
+// - json.Marshaler
+// - json.Unmarshaler
 type Duration time.Duration
 
 // ErrTooBig is returned by Interval.Duration and Duration.Scan if the
@@ -75,4 +79,31 @@ func (d Duration) Value() (driver.Value, error) {
 	milliseconds, nanoseconds = divmod(nanoseconds, int64(time.Millisecond))
 	microseconds, _ = divmod(nanoseconds, int64(time.Microsecond))
 	return formatInput(years, months, days, hours, minutes, seconds, milliseconds, microseconds), nil
+}
+
+// MarshalJSON implements json.Marshaler
+func (d Duration) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Duration(d).String())
+}
+
+// UnmarshalJSON implements json.Unmarshaler
+func (d *Duration) UnmarshalJSON(b []byte) error {
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	switch value := v.(type) {
+	case float64:
+		*d = Duration(time.Duration(value))
+		return nil
+	case string:
+		tmp, err := time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+		*d = Duration(tmp)
+		return nil
+	default:
+		return errors.New("invalid duration")
+	}
 }
