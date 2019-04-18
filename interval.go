@@ -2,7 +2,6 @@ package pqinterval
 
 import (
 	"database/sql/driver"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -82,8 +81,8 @@ func (ival *Interval) Scan(src interface{}) error {
 	case []byte:
 		s = string(x)
 	default:
-		return errors.New(
-			"pqinterval: converting driver.Value type %T (%q) to string: invalid syntax",
+		return fmt.Errorf(
+			"pqinterval: converting driver.Value type %T (%q) to string: invalid syntax", x, x,
 		)
 	}
 
