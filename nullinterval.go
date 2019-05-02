@@ -10,7 +10,21 @@ type NullInterval struct {
 }
 
 func (nival *NullInterval) Scan(src interface{}) error {
-	nival.Interval, nival.Valid = src.(Interval)
+	if src == nil {
+		nival.Valid = false
+		return nil
+	}
+
+	var (
+		ival Interval
+		err  error
+	)
+	if err = (&ival).Scan(src); err != nil {
+		nival.Valid = false
+		return err
+	}
+
+	nival.Interval, nival.Valid = ival, true
 	return nil
 }
 

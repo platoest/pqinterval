@@ -5,12 +5,14 @@ import (
 )
 
 func TestScanNullInterval(t *testing.T) {
-	var nival NullInterval
-	ival := New(1, 2, 3, 4, 5, 6)
-	err := nival.Scan(ival)
+	nival := new(NullInterval)
+	err := nival.Scan("3 years 182 days 01:22:33.456789")
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	ival := New(3, 182, 1, 22, 33, 456789)
+
 	if !nival.Valid {
 		t.Fatalf("valid interval: got %v, want %v", nival.Valid, true)
 	}

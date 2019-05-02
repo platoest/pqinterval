@@ -5,10 +5,15 @@ import (
 )
 
 func TestScanNullDuration(t *testing.T) {
-	nd := new(NullDuration)
-	ival := New(1, 2, 3, 4, 5, 6)
+	s := "3 years 182 days 01:22:33.456789"
+	ival := New(3, 182, 1, 22, 33, 456789)
 	d, _ := ival.Duration()
-	_ = nd.Scan(ival)
+
+	nd := new(NullDuration)
+	err := nd.Scan(s)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if !nd.Valid {
 		t.Errorf("valid duration: got %v, want %v", nd.Valid, true)
