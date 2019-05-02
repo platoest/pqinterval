@@ -81,9 +81,19 @@ func (d Duration) Value() (driver.Value, error) {
 	return formatInput(years, months, days, hours, minutes, seconds, milliseconds, microseconds), nil
 }
 
-// MarshalJSON implements json.Marshaler
+func (d Duration) Milliseconds() float64 {
+	td := time.Duration(d)
+	msec := td / time.Millisecond
+	nsec := td % time.Millisecond
+	return float64(msec) + float64(nsec)/1e6
+}
+
+// MarshalJSON implements json.Marshaler. IMPORTANT NOTE: We are serializing
+// Duration as an *integer* number of milliseconds. For our use case, this is
+// sufficient: we don't need any more precision than millisecond.
 func (d Duration) MarshalJSON() ([]byte, error) {
-	return json.Marshal(time.Duration(d).String())
+	ms := int64(math.Round(d.Milliseconds()))
+	return json.Marshal(ms)
 }
 
 // UnmarshalJSON implements json.Unmarshaler
@@ -94,7 +104,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	}
 	switch value := v.(type) {
 	case float64:
-		*d = Duration(time.Duration(value))
+		*d = Duration(time.Duration(value * 1e6))
 		return nil
 	case string:
 		tmp, err := time.ParseDuration(value)

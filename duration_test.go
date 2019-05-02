@@ -47,6 +47,24 @@ func TestZeroDuration(t *testing.T) {
 	assert.EqualValues(t, "0 microseconds", val, "Duration.Value() result")
 }
 
+func TestDuration_Milliseconds_whole(t *testing.T) {
+	d, _ := time.ParseDuration("1s")
+	pqd := Duration(d)
+	got := pqd.Milliseconds()
+	if want := 1000.0; got != want {
+		t.Errorf("bad milliseconds: got %v, want %v", got, want)
+	}
+}
+
+func TestDuration_Milliseconds_part(t *testing.T) {
+	d, _ := time.ParseDuration("1100000ns")
+	pqd := Duration(d)
+	got := pqd.Milliseconds()
+	if want := 1.1; got != want {
+		t.Errorf("bad milliseconds: got %v, want %v", got, want)
+	}
+}
+
 func TestDuration_MarshalJSON(t *testing.T) {
 	orig := "20m30s"
 	d, err := time.ParseDuration(orig)
@@ -58,13 +76,25 @@ func TestDuration_MarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := string(b), fmt.Sprintf(`"%v"`, orig); got != want {
+	if got, want := string(b), fmt.Sprintf("%d", 1230000); got != want {
 		t.Errorf("bad marshal: got %v, want %v", got, want)
 	}
 }
 
 func TestDuration_UnmarshalJSON_string(t *testing.T) {
 	input := []byte(`"20m30s"`)
+	var d Duration
+	err := (&d).UnmarshalJSON(input)
+	if err != nil {
+		t.Error(err)
+	}
+	if got, want := d, Duration(1230000000000); got != want {
+		t.Errorf("bad unmarshal: got %v, want %v", got, want)
+	}
+}
+
+func TestDuration_UnmarshalJSON_millis(t *testing.T) {
+	input := []byte(`1230000`)
 	var d Duration
 	err := (&d).UnmarshalJSON(input)
 	if err != nil {
