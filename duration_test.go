@@ -1,7 +1,7 @@
 package pqinterval
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -76,7 +76,7 @@ func TestDuration_MarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := string(b), fmt.Sprintf("%d", 1230000); got != want {
+	if got, want := string(b), strconv.Itoa(1230000); got != want {
 		t.Errorf("bad marshal: got %v, want %v", got, want)
 	}
 }
