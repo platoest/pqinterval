@@ -45,7 +45,7 @@ func (nd NullDuration) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return nd.Duration, nil
+	return nd.Duration.Value(), nil
 }
 
 var _ driver.Valuer = NullDuration{}
