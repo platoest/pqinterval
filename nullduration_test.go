@@ -25,6 +25,25 @@ func TestScanNullDuration(t *testing.T) {
 	}
 }
 
+func TestScanNullDurationLargeHours(t *testing.T) {
+	s := "163:08:24.636"
+	ival := New(0, 0, 163, 8, 24, 636000)
+	d, _ := ival.Duration()
+
+	nd := new(NullDuration)
+	err := nd.Scan(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !nd.Valid {
+		t.Errorf("valid duration: got %v, want %v", nd.Valid, true)
+	}
+	if got, want := nd.Duration, Duration(d); got != want {
+		t.Errorf("time value mismatch: got %v, want %v", got, want)
+	}
+}
+
 func TestScanNilNullDuration(t *testing.T) {
 	var nd NullDuration
 	err := nd.Scan(nil)

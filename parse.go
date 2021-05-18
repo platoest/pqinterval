@@ -33,51 +33,28 @@ func parse(s string) (Interval, error) {
 			t = t[1:]
 		}
 
-		// hh:mm:ss[.uuuuuu]
-		if t[2] != ':' || t[5] != ':' || len(t) < 8 {
-			return ival, ParseErr{s, nil}
-		}
-		if len(t) > 8 && (t[8] != '.' || len(t) == 9) {
-			return ival, ParseErr{s, nil}
-		}
+		var (
+			hrs   int
+			mins  int
+			secs  int
+			usStr string
 
-		hrs, err := strconv.Atoi(t[:2])
-		if err != nil {
+			us  int
+			err error
+		)
+
+		if n, err := fmt.Sscanf(t, "%d:%d:%d.%v", &hrs, &mins, &secs, &usStr); n < 3 {
 			return ival, ParseErr{s, err}
 		}
+		usStr += strings.Repeat("0", 6-len(usStr))
+		if us, err = strconv.Atoi(usStr); err != nil {
+			return ival, ParseErr{s, err}
+		}
+		us += secs*usPerSec + mins*usPerMin
+
 		if negTime {
 			hrs = -hrs
 		}
-		t = t[3:]
-
-		mins, err := strconv.Atoi(t[:2])
-		if err != nil {
-			return ival, ParseErr{s, err}
-		}
-		t = t[3:]
-
-		secs, err := strconv.Atoi(t[:2])
-		if err != nil {
-			return ival, ParseErr{s, err}
-		}
-		t = t[2:]
-
-		if len(t) > 0 {
-			t = t[1:]
-		}
-
-		var us int
-
-		if t != "" {
-			t += strings.Repeat("0", 6-len(t))
-			us, err = strconv.Atoi(t)
-			if err != nil {
-				return ival, ParseErr{s, err}
-			}
-
-		}
-
-		us += secs*usPerSec + mins*usPerMin
 
 		ival.hrs = int32(hrs)
 		ival.us = uint32(us)
