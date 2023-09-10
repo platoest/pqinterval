@@ -15,7 +15,7 @@ type NullDuration struct {
 func NewNullDuration(d Duration, valid bool) NullDuration {
 	return NullDuration{
 		Duration: d,
-		Valid: valid,
+		Valid:    valid,
 	}
 }
 

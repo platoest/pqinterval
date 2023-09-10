@@ -1,5 +1,5 @@
-module github.com/ergatta/pqinterval
+module github.com/platoest/pqinterval
 
 go 1.12
 
-require github.com/stretchr/testify v1.3.0
+require github.com/stretchr/testify v1.8.4
