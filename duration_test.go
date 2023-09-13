@@ -76,7 +76,7 @@ func TestDuration_MarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := string(b), strconv.Itoa(1230000); got != want {
+	if got, want := string(b), strconv.Itoa(21); got != want {
 		t.Errorf("bad marshal: got %v, want %v", got, want)
 	}
 }
@@ -88,19 +88,19 @@ func TestDuration_UnmarshalJSON_string(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := d, Duration(1230000000000); got != want {
+	if got, want := d, Duration(21); got != want {
 		t.Errorf("bad unmarshal: got %v, want %v", got, want)
 	}
 }
 
-func TestDuration_UnmarshalJSON_millis(t *testing.T) {
+func TestDuration_UnmarshalJSON_minutes(t *testing.T) {
 	input := []byte(`1230000`)
 	var d Duration
 	err := (&d).UnmarshalJSON(input)
 	if err != nil {
 		t.Error(err)
 	}
-	if got, want := d, Duration(1230000000000); got != want {
+	if got, want := d, Duration(1230000*time.Minute); got != want {
 		t.Errorf("bad unmarshal: got %v, want %v", got, want)
 	}
 }
